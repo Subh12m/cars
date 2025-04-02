@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Sign Up</button>
+
+    <script>
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function signup() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            let users = JSON.parse(localStorage.getItem("users")) || {};
+
+            if (!validateEmail(email)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
+
+            if (users[email]) {
+                alert("User already exists!");
+            } else {
+                const hashedPassword = bcrypt.hashSync(password, 10);
+                users[email] = hashedPassword;
+                localStorage.setItem("users", JSON.stringify(users));
+                alert("Sign up successful! Please log in.");
+            }
+        }
+
+        function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const users = JSON.parse(localStorage.getItem("users")) || {};
+
+            if (!validateEmail(email)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            if (users[email] && bcrypt.compareSync(password, users[email])) {
+                localStorage.setItem("loggedInUser", email);
+                window.location.href = "index.html";
+            } else {
+                alert("Invalid email or password");
+            }
+        }
+    </script>
+</body>
+</html>
